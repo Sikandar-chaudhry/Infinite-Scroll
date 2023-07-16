@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Scroll</title>
+    <style>
+        .post {
+            background-color: #77dd11;
+            padding: 20px;
+            margin: 10px;
+            font-size: larger;
+        }
+
+        body {
+            padding-bottom: 50px;
+        }
+        .loading-indicator {
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            color: grey;
+            font-size: x-large;
+        }
+    </style>
+    <script>
+        let counter = 1;
+        const quantity = 20;
+        let isLoading = false;
+
+        document.addEventListener('DOMContentLoaded', load);
+
+        window.onscroll = function(){
+            console.log(window.scrollY);
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight){
+                load();
+            }
+        };
+
+        function load(){
+
+            if (isLoading) {
+                return;
+            }
+
+            isLoading = true;
+            showLoadingIndicator();
+
+            const start = counter;
+            const end = start+quantity-1;
+            counter = end+1;
+
+            fetch(`posts/?start=${start}&end=${end}`)
+            .then (response => response.json())
+            .then (data => {
+                data.posts.forEach(add_post);
+                hideLoadingIndicator();
+                    isLoading = false;
+            })
+        };
+        function add_post(content){
+            const post = document.createElement('div');
+            post.className = 'post'
+            post.innerHTML = content;
+
+            document.querySelector('#posts').append(post);
+        };
+        function showLoadingIndicator() {
+            document.querySelector('#loading-indicator').style.display = 'block';
+        }
+
+        function hideLoadingIndicator() {
+            document.querySelector('#loading-indicator').style.display = 'none';
+        }
+
+    </script>
+</head>
+<body>
+    <div id="posts">
+
+    </div>
+    <div class="loading-indicator" id="loading-indicator">Loading...</div>
+</body>
+</html>
