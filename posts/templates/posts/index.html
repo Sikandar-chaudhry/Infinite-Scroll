@@ -5,13 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infinite Scroll</title>
     <style>
+        @keyframes hide {
+            0%{
+                opacity: 1;
+                height: 100%;
+                line-height: 100%;
+                padding: 20px;
+                margin-bottom: 10px;
+            }
+            75%{
+                opacity: 0;
+                height: 100%;
+                line-height: 100%;
+                padding: 20px;
+                margin-bottom: 10px;
+            }
+            100%{
+                opacity: 0;
+                height: 0px;
+                line-height: 0px;
+                padding: 0px;
+                margin-bottom: 0px;
+            }
+        }
         .post {
+            position: relative;
             background-color: #77dd11;
             padding: 20px;
             margin: 10px;
             font-size: larger;
+            animation-name: hide;
+            animation-duration: 2s;
+            animation-fill-mode: forwards;
+            animation-play-state: paused;
         }
-
+        .hide {
+            position: absolute;
+            right: 20px;
+            font-size: larger;
+        }
+        .hide:hover {
+            position: absolute;
+            right: 20px;
+            border: 3px solid black;
+        }
         body {
             padding-bottom: 50px;
         }
@@ -36,13 +73,20 @@
                 load();
             }
         };
+        document.addEventListener('click', event => {
+            const element = event.target;
+            if (element.className === 'hide'){
+                element.parentElement.style.animationPlayState = 'running';
+                element.parentElement.addEventListener('animationend', function(){
+                    element.parentElement.remove();
+                });
+            }
+        });
 
         function load(){
-
             if (isLoading) {
                 return;
             }
-
             isLoading = true;
             showLoadingIndicator();
 
@@ -61,7 +105,7 @@
         function add_post(content){
             const post = document.createElement('div');
             post.className = 'post'
-            post.innerHTML = content;
+            post.innerHTML = `${content} <button class='hide'>Hide</button>`
 
             document.querySelector('#posts').append(post);
         };
